@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-
-from ..models import Group, Post
+from posts.models import Group, Post
 
 User = get_user_model()
 
@@ -12,23 +11,55 @@ class PostModelTest(TestCase):
         super().setUpClass()
         cls.user = User.objects.create_user(username='auth')
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='Тестовый слаг',
-            description='Тестовое описание',
+            title='тест заголовок',
+            slug='test_slug',
+            description='тест описание',
         )
         cls.post = Post.objects.create(
             author=cls.user,
             group=cls.group,
-            text='Тестовая группа',
+            text='тест текст',
         )
 
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
-        group = PostModelTest.group
         post = PostModelTest.post
 
-        expected_group_str = group.title
-        expected_post_str = post.text[:15]
+        field_object_name = {
+            post: self.post.text,
+        }
+        for value, expected in field_object_name.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    str(post), expected[:15]
+                )
 
-        self.assertEqual(expected_group_str, str(group))
-        self.assertEqual(expected_post_str, str(post))
+
+class GroupModelTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='auth')
+        cls.group = Group.objects.create(
+            title='тест заголовок',
+            slug='test_slug',
+            description='тест описание',
+        )
+        cls.post = Post.objects.create(
+            author=cls.user,
+            group=cls.group,
+            text='тест текст',
+        )
+
+    def test_models_have_correct_object_names(self):
+        """Проверяем, что у моделей корректно работает __str__."""
+        group = GroupModelTest.group
+
+        field_object_name = {
+            group: self.group.title,
+        }
+        for value, expected in field_object_name.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    str(group), expected
+                )
