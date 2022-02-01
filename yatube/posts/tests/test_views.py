@@ -12,16 +12,17 @@ class PostViewsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.author = User.objects.create_user(username='no_name')
+        cls.author = User.objects.create_user(username='anton')
         cls.group = Group.objects.create(
-            title='тест заголовок',
+            title='label',
             slug='test-slug',
-            description='тест описание'
+            description='labels description for testing urls'
         )
         cls.post = Post.objects.create(
             author=cls.author,
             group=cls.group,
-            text='тест текст',
+            text='Тестовый текст',
+            pub_date='28.06.2021',
         )
         cls.guest_client = Client()
         cls.authorized_client = Client()
@@ -107,13 +108,13 @@ class PaginatorViewTest(TestCase):
         super().setUpClass()
         cls.user = User.objects.create(username='testuser')
         cls.group = Group.objects.create(
-            title='тест заголовок',
+            title='label',
             slug='test-slug',
-            description='тест описание'
+            description='labels description for testing paginator'
         )
         for i in range(13):
             cls.post = Post.objects.create(
-                text=f'{i} тест текст',
+                text=f'{i} тестовый текст',
                 author=cls.user,
                 group=cls.group,
             )
