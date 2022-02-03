@@ -69,7 +69,7 @@ class PostPagesTests(TestCase):
                 with self.subTest(reverse_name=reverse_name):
                     response = self.authorized_client.get(reverse_name)
                     self.assertTemplateUsed(response, template)
-    
+
     def _post_for_tests(self, context, some_posts):
         self.assertEqual(context.text, some_posts.text)
         self.assertEqual(context.group, some_posts.group)
@@ -151,7 +151,7 @@ class PostPagesTests(TestCase):
             with self.subTest(value=value):
                 form_field = response.context.get('form').fields.get(value)
                 self.assertIsInstance(form_field, expected)
-    
+
     def test_create_new_post(self):
         """Тест создания нового поста"""
         new_post = Post.objects.create(
