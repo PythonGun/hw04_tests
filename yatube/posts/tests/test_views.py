@@ -1,12 +1,11 @@
-from django.test import TestCase, Client
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from posts.models import Post, Group
 from django import forms
+from django.test import TestCase, Client
+from django.urls import reverse
+
+
+from posts.models import Post, Group, User
 
 from yatube.settings import PAGE_NUM
-
-User = get_user_model()
 
 
 class PostPagesTests(TestCase):
@@ -20,6 +19,12 @@ class PostPagesTests(TestCase):
             title='Тестовая группа',
             slug='test-slug',
             description='Тестовое описание',
+        )
+
+        cls.group1 = Group.objects.create(
+            title='Тестовая группа1',
+            slug='test-slug1',
+            description='Тестовое описание1',
         )
 
         cls.post = Post.objects.create(
@@ -53,6 +58,14 @@ class PostPagesTests(TestCase):
                 'posts:post_edit', kwargs={'post_id': PostPagesTests.post.id}
             ): 'posts/create_post.html',
         }
+
+        cls.field_urls_templates = [
+            reverse('posts:index'),
+            reverse('posts:slug', kwargs={
+                'slug': PostPagesTests.group.slug}),
+            reverse('posts:profile', kwargs={
+                'username': PostPagesTests.user.username})
+        ]
 
     def setUp(self):
         self.authorized_client = Client()
@@ -132,16 +145,9 @@ class PostPagesTests(TestCase):
         is_edit_context = response.context.get('is_edit')
         self.assertTrue(is_edit_context)
 
-    def test_page_list_is_1(self):
+    def test_page_list(self):
         """Пост с группой попал на необходимые страницы."""
-        field_urls_templates = [
-            reverse('posts:index'),
-            reverse('posts:slug', kwargs={
-                'slug': PostPagesTests.group.slug}),
-            reverse('posts:profile', kwargs={
-                'username': PostPagesTests.user.username})
-        ]
-        for url in field_urls_templates:
+        for url in self.field_urls_templates:
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
                 self.assertEqual(len(response.context['page_obj']), 2)
@@ -152,11 +158,13 @@ class PaginatorViewsTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create(username='auth')
+
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
             description='Тестовое описание',
         )
+
         cls.post = [
             Post.objects.create(
                 text='Пост №' + str(i),
@@ -171,10 +179,14 @@ class PaginatorViewsTest(TestCase):
 
     def test_index_page_contains_ten_records(self):
         response = self.client.get(reverse('posts:index'))
-        self.assertEqual(len(response.context['page_obj']), PAGE_NUM)
+        page_obj = response.context['page_obj']
+        number_obj = page_obj.paginator.get_page('1').object_list.count()
+        self.assertEqual(number_obj, PAGE_NUM)
 
     def test_second_page_contains_three_records(self):
         response = self.client.get(
             reverse('posts:index') + '?page=2'
         )
-        self.assertEqual(len(response.context['page_obj']), 3)
+        page_obj = response.context['page_obj']
+        number_obj = page_obj.paginator.get_page('2').object_list.count()
+        self.assertEqual(number_obj, 3)

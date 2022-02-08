@@ -1,9 +1,7 @@
 from django.test import TestCase, Client
-from posts.models import Post, Group
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-User = get_user_model()
+from posts.models import Post, Group, User
 
 
 class PostFormsTests(TestCase):
@@ -11,10 +9,6 @@ class PostFormsTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.guest_client = Client()
-
-        cls.user = User.objects.create_user(username='test_user')
-        cls.authorized_client = Client()
-        cls.authorized_client.force_login(cls.user)
 
         cls.author = User.objects.create_user(username='test_author')
         cls.authorized_author = Client()
@@ -32,18 +26,25 @@ class PostFormsTests(TestCase):
             author=cls.author,
         )
 
+        cls.form_data_create = {
+            'text': 'new_text',
+            'group': cls.group.id,
+            'username': cls.author.username,
+        }
+
+        cls.form_data_edit = {
+            'post_id': cls.post.id,
+            'text': 'editted_text',
+            'group': cls.group.id,
+            'author': cls.author,
+        }
+
     def test_create_post(self):
         posts_count = Post.objects.count()
 
-        form_data = {
-            'text': 'new_text',
-            'group': self.group.id,
-            'username': self.author.username,
-        }
-
         response = self.authorized_author.post(
             reverse('posts:post_create'),
-            data=form_data,
+            data=self.form_data_create,
             follow=True,
         )
 
@@ -61,15 +62,10 @@ class PostFormsTests(TestCase):
         )
 
     def test_edit_post(self):
-        form_data = {
-            'post_id': self.post.id,
-            'text': 'editted_text',
-            'group': self.group.id,
-            'author': self.author,
-        }
+
         response = self.authorized_author.post(
             reverse('posts:post_edit', args=[self.post.id]),
-            data=form_data,
+            data=self.form_data_edit,
             follow=True,
         )
         self.assertRedirects(
