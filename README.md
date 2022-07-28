@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/-Python_3.7.9-464646??style=flat-square&logo=Python)](https://www.python.org/downloads/)
 [![Django](https://img.shields.io/badge/-Django-464646??style=flat-square&logo=Django)](https://www.djangoproject.com/)
 
-
+## Описание
 Это учебный проект, выполненный в рамках обучения на Python-разработчика в Яндекс.Практикум. Цель проекта - создание cоциальной сети Yatube для размещения постов с авторизацией, персональными лентами, комментариями и подпиской на авторов. Это промежуточная версия, целью которой было покрытие проекта тестами. 
 
 # Установка
